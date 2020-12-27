@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # mbdbls - Parse Manifest.mbdb files from iTunes backup directories
 #
@@ -8,6 +8,7 @@
 # Modifications by Hal Pomeranz (hal@deer-run.com), 2014-04-27
 # This code released under Creative Commons Attribution license (CC BY)
 #
+# Updated for Python 3 by Corey Forman (https://github.com/digitalsleuth)
 
 import sys
 import hashlib
@@ -57,23 +58,23 @@ def getint(data, offset, intsize):
     """Retrieve an integer (big-endian) and new offset from the current offset"""
     value = 0
     while intsize > 0:
-        value = (value<<8) + ord(data[offset])
+        value = (value<<8) + data[offset]
         offset = offset + 1
         intsize = intsize - 1
     return value, offset
 
 def getstring(data, offset):
     """Retrieve a string and new offset from the current offset into the data"""
-    if data[offset] == chr(0xFF) and data[offset+1] == chr(0xFF):
+    if data[offset] == 255 and data[offset+1] == 255:
         return '', offset+2 # Blank string
     length, offset = getint(data, offset, 2) # 2-byte length
     value = data[offset:offset+length]
-    return value, (offset + length)
+    return value.decode('ISO-8859-1'), (offset + length)
 
 def process_mbdb_file(filename):
     mbdb = {} # Map offset of info in this file => file info
-    data = open(filename).read()
-    if data[0:4] != "mbdb": raise Exception("This does not look like an MBDB file")
+    data = open(filename, 'rb').read()
+    if data[0:4] != b"mbdb": raise Exception("This does not look like an MBDB file")
     offset = 4
     offset = offset + 2 # value x05 x00, not sure what this is
     while offset < len(data):
@@ -82,7 +83,7 @@ def process_mbdb_file(filename):
         fileinfo['domain'], offset = getstring(data, offset)
         fileinfo['filename'], offset = getstring(data, offset)
         fileinfo['fullpath'] = fileinfo['domain'] + '::' + fileinfo['filename']
-        fileinfo['fileID'] = hashlib.sha1(fileinfo['domain'] + '-' + fileinfo['filename']).hexdigest()
+        fileinfo['fileID'] = hashlib.sha1((fileinfo['domain'] + '-' + fileinfo['filename']).encode()).hexdigest()
         fileinfo['linktarget'], offset = getstring(data, offset)
         fileinfo['datahash'], offset = getstring(data, offset)
         fileinfo['unknown1'], offset = getstring(data, offset)
@@ -140,7 +141,7 @@ def fileinfo_str(f):
     elif (f['mode'] & 0xE000) == 0x8000: type = '-' # file
     elif (f['mode'] & 0xE000) == 0x4000: type = 'd' # dir
     else: 
-        print >> sys.stderr, "Unknown file type %04x for %s" % (f['mode'], fileinfo_str(f, False))
+        print(sys.stderr, "Unknown file type %04x for %s" % (f['mode'], fileinfo_str(f, False)))
         type = '?' # unknown
     info = (fmt_str %
             (type, modestr(f['mode']&0x0FFF) , f['userid'], f['groupid'], f['filelen'], 
@@ -154,4 +155,4 @@ def fileinfo_str(f):
 if __name__ == '__main__':
     mbdb = process_mbdb_file(args.file)
     for offset in sorted(sorting, key=sorting.get, reverse=args.r):
-        print fileinfo_str(mbdb[offset])
+        print(fileinfo_str(mbdb[offset]))
