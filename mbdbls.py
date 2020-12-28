@@ -10,15 +10,21 @@
 #
 # Updated for Python 3 by Corey Forman (https://github.com/digitalsleuth)
 
+__version__ = '2.0.0'
+__last_updated__ = '2020-12-28'
+__source__ = 'https://github.com/digitalsleuth/mbdbls'
+__authors__ = 'galloglass, Robert Munafo, Hal Pomeranz, Corey Forman'
+
 import sys
 import hashlib
 import argparse
 from time import strftime, localtime, gmtime
 
 parser = argparse.ArgumentParser(description='Parse Manifest.mbdb files from iTunes backup directories')
-parser.add_argument('-f', '--file', default='Manifest.mbdb', metavar='FILE', help='File to parse (default Manifest.mbdb)')
+parser.add_argument('-f', '--file', metavar='FILE', help='File to parse (default Manifest.mbdb)', required=True)
 parser.add_argument('--tab', action='store_true', help='tab-delimited output (implies -l)')
 parser.add_argument('-T', '--time_fmt', choices=['l','e','u'], default='l', help='Output (l)ocaltime, (u)tc, (e)poch (default localtime)')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s ' +str(__version__))
 
 output_fmt = parser.add_mutually_exclusive_group()
 output_fmt.add_argument('-l', action='store_true', help='detailed listing')
