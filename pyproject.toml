@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+exclude = ["debian*", "binaries*", "build*", "dist*"]
+
+[project]
+name = "mbdbls"
+version = "2.1.0"
+requires-python = ">=3.8"
+authors = [
+  {name = "Corey Forman (digitalsleuth), galloglass, Robert Munafo, Hal Pomeranz", email = "github@digitalsleuth.ca"}
+]
+maintainers = [
+  {name = "Corey Forman (digitalsleuth)", email = "github@digitalsleuth.ca"}
+]
+description = "Python 3 parser for iOS Manifest.mbdb files"
+readme = "README.md"
+license = {file = "LICENSE.md"}
+keywords = ["digital forensics", "dfir", "apple", "ios", "manifest", "mbdb"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://github.com/digitalsleuth/mbdbls"
+
+[project.scripts]
+mbdbls = "mbdbls.mbdbls:main"
